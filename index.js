@@ -1,74 +1,33 @@
-import express from "express";
-import bodyParser from "body-parser";
-import mongoose from "mongoose";
-import cors from "cors";
-import http from "http";
-import path from "path";
-import morgan from "morgan";
-import dotenv from "dotenv";
-import compression from "compression";
-import cookieParser from "cookie-parser";
-import { fileURLToPath } from "url";
-
-import routes from "./routes/index.js";
-import globalErrorHandler from "./controllers/errorController.js";
-import AppError from "./utils/appError.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-dotenv.config({
-  path: path.resolve(__dirname, ".", ".env.local"),
-});
+import express from 'express';
+import bodyParser from 'body-parser';
+import mongoose from 'mongoose';
 
 const app = express();
+const port = process.env.PORT || 3000;
 
-// ? DEVELOPMENT REQUEST LOGGING
-if (process.env.NODE_ENV?.trim() === "development") {
-  app.use(morgan("dev"));
-}
-
-//  ? COMPRESS ALL RESPONSES
-app.use(compression());
-
-// ? PARSE COOKIES
-app.use(cookieParser());
-
-// ? PARSE REQUESTS OF CONTENT-TYPE - APPLICATION/JSON
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-const server = http.createServer(app);
+// Define routes
+import router from './router.js';
+app.use('/api', router);
 
-const SERVER_PORT = process.env.PORT || 8080;
-
-server.listen(SERVER_PORT, () => {
-  console.log(
-    `Server is running on  http://localhost:${SERVER_PORT}`
-  );
+// Connect to MongoDB
+mongoose.connect('mongodb+srv://wijebahuwmpwdgb20:dgb123@inventory.nk3kupt.mongodb.net/?retryWrites=true&w=majority', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 
-mongoose.connect(process.env.MONGODB_URL);
+const db = mongoose.connection;
 
-mongoose.connection.on("connected", () => {
-  console.log("Connected to MongoDB");
+db.on('error', (err) => {
+  console.error('MongoDB connection error:', err);
 });
 
-mongoose.connection.on("error", (err) => {
-  console.log("Error connecting to MongoDB", err);
+db.once('open', () => {
+  console.log('Connected to MongoDB');
+  // Start the server
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
 });
-
-// ROUTES
-app.use("/", routes());
-
-// HANDLE UNHANDLED ROUTES
-app.all("*", (req, res, next) => {
-  next(
-    new AppError(
-      `Can't find ${req.originalUrl} on this server`,
-      404
-    )
-  );
-});
-
-// GLOBAL ERROR HANDLER
-app.use(globalErrorHandler);
