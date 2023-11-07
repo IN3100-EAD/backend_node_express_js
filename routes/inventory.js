@@ -1,8 +1,7 @@
 import express from 'express';
-const router = express.Router();
 import InventoryItem from '../models/InventoryItem.js';
 
-
+const router = express.Router();
 
 // Create a new inventory item
 router.post('/items', async (req, res) => {
@@ -11,7 +10,11 @@ router.post('/items', async (req, res) => {
     await newItem.save();
     res.status(201).json(newItem);
   } catch (error) {
-    res.status(400).json({ error: 'Failed to create an inventory item.' });
+    if (error.name === 'MongoError' && error.code === 11000) {
+      res.status(400).json({ error: 'ItemID must be unique.' });
+    } else {
+      res.status(400).json({ error: 'Failed to create an inventory item.' });
+    }
   }
 });
 
@@ -37,6 +40,9 @@ router.get('/items/:id', async (req, res) => {
     res.status(400).json({ error: 'Failed to retrieve the inventory item.' });
   }
 });
+
+
+
 
 // Update an inventory item by ID
 router.put('/items/:id', async (req, res) => {

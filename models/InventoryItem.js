@@ -5,6 +5,8 @@ import mongoose from 'mongoose';
 const { Schema, model } = mongoose;
 
 const InventoryItemSchema = new Schema({
+ 
+  itemID: { type: String, required: true, unique: true },
   name: { type: String, required: true },
   category: { type: String, required: true },
   quantity: { type: Number, required: true },
