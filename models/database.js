@@ -1,7 +1,7 @@
 // database.js
 const mongoose = require('mongoose');
 
-// MongoDB setup (You need to provide your MongoDB URI)
+// MongoDB setup 
 mongoose.connect('mongodb+srv://wijebahuwmpwdgb20:dgb123@inventory.nk3kupt.mongodb.net/inventory?retryWrites=true&w=majority', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
