@@ -1,33 +1,12 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import mongoose from 'mongoose';
-
+const express = require('express');
 const app = express();
-const port = process.env.PORT || 4001;
+const port = 3000; // or your desired port
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+const { itemRoutes } = require('./controller/routes'); // Import the routes
 
-// Define routes
-import router from './router.js';
-app.use('/api', router);
+app.use(express.json());
+app.use('/api', itemRoutes); // Use the item routes with a prefix '/api'
 
-// Connect to MongoDB
-mongoose.connect('mongodb+srv://wijebahuwmpwdgb20:dgb123@inventory.nk3kupt.mongodb.net/?retryWrites=true&w=majority', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-const db = mongoose.connection;
-
-db.on('error', (err) => {
-  console.error('MongoDB connection error:', err);
-});
-
-db.once('open', () => {
-  console.log('Connected to MongoDB');
-  // Start the server
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-  });
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
