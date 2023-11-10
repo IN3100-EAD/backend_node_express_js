@@ -23,6 +23,12 @@ dotenv.config({
 
 const app = express();
 
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+  })
+);
+
 // ? DEVELOPMENT REQUEST LOGGING
 if (process.env.NODE_ENV?.trim() === "development") {
   app.use(morgan("dev"));
@@ -42,9 +48,7 @@ const server = http.createServer(app);
 const SERVER_PORT = process.env.PORT || 8080;
 
 server.listen(SERVER_PORT, () => {
-  console.log(
-    `Server is running on  http://localhost:${SERVER_PORT}`
-  );
+  console.log(`Server is running on  http://localhost:${SERVER_PORT}`);
 });
 
 mongoose.connect(process.env.MONGODB_URL);
@@ -62,12 +66,7 @@ app.use("/", routes());
 
 // HANDLE UNHANDLED ROUTES
 app.all("*", (req, res, next) => {
-  next(
-    new AppError(
-      `Can't find ${req.originalUrl} on this server`,
-      404
-    )
-  );
+  next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
 });
 
 // GLOBAL ERROR HANDLER
